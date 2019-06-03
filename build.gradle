@@ -4,26 +4,32 @@ plugins {
 }
 
 apply plugin: 'io.spring.dependency-management'
+apply plugin: 'application'
+mainClassName = 'com.cherentsov.animalback.AnimalbackApplication'
 
 group = 'com.cherentsov'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
 
 repositories {
 	mavenCentral()
 	maven { url 'https://repo.spring.io/snapshot' }
 	maven { url 'https://repo.spring.io/milestone' }
 }
-
+sourceSets {
+	main.java.srcDir "src/main/java"
+	main.resources.srcDir "src/main/resources"
+	test.java.srcDir "src/test/java"
+	test.resources.srcDir "src/test/resources"
+}
 dependencies {
 	//implementation 'org.springframework.boot:spring-boot-starter'
 	runtimeOnly 'org.postgresql:postgresql'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	testImplementation('org.springframework.boot:spring-boot-starter-test') {
-		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
-		exclude group: 'junit', module: 'junit'
-	}
+	testImplementation('org.springframework.boot:spring-boot-starter-test')
 	compile group: 'org.hibernate', name: 'hibernate-core'
+	testCompile group: 'com.h2database', name: 'h2', version: '1.3.148'
 }
 
 test {

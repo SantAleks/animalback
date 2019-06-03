@@ -56,7 +56,7 @@ public class GenericDAO implements IGenericDAO {
     public List<Pet> findPointByFK(List<Region> lRegion, List<AnimalType> lAnimalType, List<SkinColor> lSkinColor) {
         String qS = "select pt from Pet as pt";
 
-        //Если задан регион, ограничим жывотных этим регионом
+        //Если задан регион, ограничим животных этим регионом
         if (lRegion.size() == 1){
             qS = qS + " join pt.location as loc with loc.region.id = " + lRegion.get(0).getId();
         }
@@ -65,7 +65,7 @@ public class GenericDAO implements IGenericDAO {
         }
         if (lSkinColor.size() == 1){
             qS = qS + (lAnimalType.size() != 1?" where ":" and ");
-            qS = qS + "skinColor.id = " + lSkinColor.get(0).getId();
+            qS = qS + "pt.skinColor.id = " + lSkinColor.get(0).getId();
         }
         qS = qS + " ORDER BY pt.animalType, pt.location";
         Query<Pet> query = session.createQuery(qS , Pet.class).setMaxResults(200);

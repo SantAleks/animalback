@@ -1,6 +1,9 @@
 package com.cherentsov.animalback.Controller;
 
+import com.cherentsov.animalback.Model.AnimalType;
 import com.cherentsov.animalback.Model.Pet;
+import com.cherentsov.animalback.Model.Region;
+import com.cherentsov.animalback.Model.SkinColor;
 import com.cherentsov.animalback.Service.DBService;
 import javassist.bytecode.stackmap.BasicBlock;
 import org.hibernate.HibernateException;
@@ -12,47 +15,24 @@ import org.springframework.web.bind.annotation.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.util.ArrayList;
 import java.util.List;
-
 
 @RestController
 public class WebController {
     private static final Log logger = LogFactory.getLog(WebController.class);
-  /*  @Bean
-    public DBService dBServiceBean() {
-        return DBService.getInstance();
-    }*/
 
     private DBService dBService;
-/*
-    @Autowired
-    public WebController(DBService dBService) {
-        this.dBService = dBService;
-    }
-*/
 
     @Autowired
     public void setdBService(DBService dBService){
         this.dBService = dBService;
     }
 
-    //Read by Id
+    //Read all
     @RequestMapping(value = "/animals", method = RequestMethod.GET)
-    //@RequestMapping(value = "/map", method = RequestMethod.GET, produces = { "application/json" })
     public List<Pet> animals() {
-        //List<Pet> lPet = new ArrayList<>();
         List<Pet> lPet = dBService.getAll(Pet.class);
-        /*
-        String[][] mPoint = new String[lPet.size()][6];
-        for (int i = 0; i < lPoint.size(); i++) {
-            mPoint[i][0] = lPoint.get(i).getAddress();
-            mPoint[i][1] = lPoint.get(i).getCity().getCountry().getName();
-            mPoint[i][2] = lPoint.get(i).getCity().getName();
-            mPoint[i][3] = lPoint.get(i).getBank().getName();
-            mPoint[i][4] = lPoint.get(i).getfX().toString();
-            mPoint[i][5] = lPoint.get(i).getfY().toString();
-        }
-        */
         return lPet;
     }
 
@@ -85,6 +65,7 @@ public class WebController {
         return ResponseEntity.ok().body(dBService.read(Pet.class, pet.getId()));
     }
 
+    //Create
     @PostMapping(value="/animals")
     public ResponseEntity<Void> create(@RequestBody Pet pet){
         List<Pet> lPet = dBService.findByName(Pet.class, pet.getName());
@@ -104,6 +85,33 @@ public class WebController {
             return new ResponseEntity<Void>(HttpStatus.CONFLICT);
         }
         return new ResponseEntity<Void>(HttpStatus.CREATED);
+    }
+
+    //Search entity
+    @RequestMapping(value = "/search", method = RequestMethod.GET)
+    public List<Pet> search(@RequestParam(value="region", required=false, defaultValue="") String regionPattern,
+                            @RequestParam(value="color", required=false, defaultValue="") String colorPattern,
+                            @RequestParam(value="type", required=false, defaultValue="") String typePattern) {
+        List<Region> lRegion = new ArrayList<>();
+        if (regionPattern.trim().length() > 0){
+            lRegion = dBService.findByName(Region.class, regionPattern.trim());
+        }
+
+        List<SkinColor> lSkinColor = new ArrayList<>();
+        if (colorPattern.trim().length() > 0){
+            lSkinColor = dBService.findByName(SkinColor.class, colorPattern.trim());
+        }
+
+        List<AnimalType> lAnimalType = new ArrayList<>();
+        if (typePattern.trim().length() > 0){
+            lAnimalType = dBService.findByName(AnimalType.class, typePattern.trim());
+        }
+
+        List<Pet> lPet = new ArrayList<>();
+        //if (lRegion.size() == 1 || lSkinColor.size() == 1 || lAnimalType.size() == 1){
+            lPet = dBService.findPetByFK(lRegion, lAnimalType, lSkinColor);
+        //}
+        return lPet;
     }
 
     @RequestMapping("/")
