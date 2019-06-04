@@ -63,7 +63,7 @@ Rest API реализован следующий:
 <p> 
   действие
 <p> 
-  <img src="https://github.com/SantAleks/animalback/blob/master/doc/Put_action.JPG" alt="Обновление записи. Действие">
+  <img src="https://github.com/SantAleks/animalback/blob/master/doc/put_action.JPG" alt="Обновление записи. Действие">
 <p> 
   результат
 <p> 
