@@ -57,15 +57,28 @@ public class GenericDAO implements IGenericDAO {
         String qS = "select pt from Pet as pt";
 
         //Если задан регион, ограничим животных этим регионом
-        if (lRegion.size() == 1){
-            qS = qS + " join pt.location as loc with loc.region.id = " + lRegion.get(0).getId();
+        if (lRegion.size() > 0) {
+            qS = qS + " join pt.location as loc with loc.region.id in (" + lRegion.get(0).getId();
+            for(int i=1; i<lRegion.size(); i++){
+                qS = qS + ", " + lRegion.get(i).getId();
+            }
+            qS = qS + ")";
         }
-        if (lAnimalType.size() == 1){
-            qS = qS + " where pt.animalType.id = " + lAnimalType.get(0).getId();
+
+        if (lAnimalType.size() > 0){
+            qS = qS + " where pt.animalType.id in (" + lAnimalType.get(0).getId();
+            for(int i=1; i<lAnimalType.size(); i++){
+                qS = qS + ", " + lAnimalType.get(i).getId();
+            }
+            qS = qS + ")";
         }
-        if (lSkinColor.size() == 1){
-            qS = qS + (lAnimalType.size() != 1?" where ":" and ");
-            qS = qS + "pt.skinColor.id = " + lSkinColor.get(0).getId();
+        if (lSkinColor.size() > 0){
+            qS = qS + (lAnimalType.size() == 0?" where ":" and ");
+            qS = qS + "pt.skinColor.id in (" + lSkinColor.get(0).getId();
+            for(int i=1; i<lSkinColor.size(); i++){
+                qS = qS + ", " + lSkinColor.get(i).getId();
+            }
+            qS = qS + ")";
         }
         qS = qS + " ORDER BY pt.animalType, pt.location";
         Query<Pet> query = session.createQuery(qS , Pet.class).setMaxResults(200);

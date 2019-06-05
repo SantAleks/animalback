@@ -1,9 +1,6 @@
 package com.cherentsov.animalback.Controller;
 
-import com.cherentsov.animalback.Model.AnimalType;
-import com.cherentsov.animalback.Model.Pet;
-import com.cherentsov.animalback.Model.Region;
-import com.cherentsov.animalback.Model.SkinColor;
+import com.cherentsov.animalback.Model.*;
 import com.cherentsov.animalback.Service.DBService;
 import javassist.bytecode.stackmap.BasicBlock;
 import org.hibernate.HibernateException;
@@ -92,26 +89,48 @@ public class WebController {
     public List<Pet> search(@RequestParam(value="region", required=false, defaultValue="") String regionPattern,
                             @RequestParam(value="color", required=false, defaultValue="") String colorPattern,
                             @RequestParam(value="type", required=false, defaultValue="") String typePattern) {
+        List<Pet> lPet = new ArrayList<>();
         List<Region> lRegion = new ArrayList<>();
         if (regionPattern.trim().length() > 0){
             lRegion = dBService.findByName(Region.class, regionPattern.trim());
+            if (lRegion.size() == 0) return lPet;
         }
 
         List<SkinColor> lSkinColor = new ArrayList<>();
         if (colorPattern.trim().length() > 0){
             lSkinColor = dBService.findByName(SkinColor.class, colorPattern.trim());
+            if (lSkinColor.size() == 0) return lPet;
         }
 
         List<AnimalType> lAnimalType = new ArrayList<>();
         if (typePattern.trim().length() > 0){
             lAnimalType = dBService.findByName(AnimalType.class, typePattern.trim());
+            if (lAnimalType.size() == 0) return lPet;
         }
 
-        List<Pet> lPet = new ArrayList<>();
+
         //if (lRegion.size() == 1 || lSkinColor.size() == 1 || lAnimalType.size() == 1){
             lPet = dBService.findPetByFK(lRegion, lAnimalType, lSkinColor);
         //}
         return lPet;
+    }
+
+    //List Type Используется для выбора параметра "тип животного" при операции create и update
+    @RequestMapping(value = "/animaltype", method = RequestMethod.GET)
+    public List<AnimalType> animalType() {
+        return dBService.getAll(AnimalType.class);
+    }
+
+    //List Location Используется для выбора параметра "Местоположение при операции create и update
+    @RequestMapping(value = "/location", method = RequestMethod.GET)
+    public List<Location> location() {
+        return dBService.getAll(Location.class);
+    }
+
+    //List SkinColor Используется для выбора параметра "Цвет шкуры" при операции create и update
+    @RequestMapping(value = "/skincolor", method = RequestMethod.GET)
+    public List<SkinColor> skinColor() {
+        return dBService.getAll(SkinColor.class);
     }
 
     @RequestMapping("/")
